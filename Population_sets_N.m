@@ -5,7 +5,7 @@ close all
 %==========================================================================
 set_efn='G'; % % Thou shalt not change
 set_stability='+'; % Thou shalt not change
-K_class =1.1; % Classical Kicking
+K_class =10; % Classical Kicking
 gamma = complex(0,0.001); % PT-strength 
 Nmin=200;
 dN=200;
@@ -56,6 +56,7 @@ dfit = polyval(coeff , log10(2*N_i+1));
 figure
 hold on
 plot(log10(2*N_i+1),log10(pint),'k.-','Markersize',10)
+plot(log10(2*N_i+1),log10(2*N_i+1),'g.-','Markersize',10)
 plot(log10(2*N_i+1),dfit,'r.-','Markersize',10)
 xlabel('N')
 ylabel('pint(\mu)')

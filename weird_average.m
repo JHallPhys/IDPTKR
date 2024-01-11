@@ -28,7 +28,10 @@ end
 if N==1001
     nfq=431/N
     nfq=1/N;
-    t_final=40
+    
+
+    t_final=50
+
 end
 if N==1501
     nfq=681/N
@@ -40,9 +43,12 @@ if N==2001
     t_final=16
 end
 
+CD_av=zeros(N,N);
 
+for itt=1:100
+itt
 % Construct Norm map
-[Norm_hm,Norm_hm_av] = nmap(t_final,qmesh,pmesh,N,k,gamma,'BWD');
+[Norm_hm,Norm_hm_av] = nmap(t_final,qmesh+rand(N,N)./N,pmesh+rand(N,N)./N,N,k,gamma,'BWD');
 Norm_sort=Norm_hm_av(:);
 Norm_sort=sort(Norm_sort,'descend');
 
@@ -54,19 +60,19 @@ Norm_single_state(Norm_single_state<=Norm_sort(round(nfq*N)*N))=0;
 Norm_single_state(Norm_single_state>1)=1;
 CD_single=imgaussfilt(Norm_single_state,sigma);
 
-
-
+CD_av=CD_av+CD_single;
 
 sum(sum(pmesh.*CD_single*dq^2))/gamma;
 figure(1)
 clf
-imagesc(q,p,CD_single)
-% colorbar
+imagesc(q,p,CD_av./itt)
+colorbar
 % caxis([0 1])
 colormap(viridis)
 %     title(strcat('state',num2str(itt)))
 set(gca,'YDir','normal')
 
+end
 
 
 

@@ -1,13 +1,13 @@
 clear all 
 close all
 
-n_efn=537
+n_efn=431
 dim=2
 ystr=strcat('D_',num2str(dim))
 for itt_efn=1:n_efn
 itt_efn
 tic 
-fname_efn=strcat('Husimi_Entropy_k10_g0p001_N1201_single_efn',num2str(itt_efn),'_special');
+fname_efn=strcat('Husimi_Entropy_k10_g0p001_N1001_single_efn',num2str(itt_efn),'_special');
 
 %==========================================================================
 %  Load the quantum data

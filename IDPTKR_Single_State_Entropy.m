@@ -11,7 +11,7 @@ close all
 %==========================================================================
 % System Parameters
 
-N_1 =1000; 
+N_1 =1600; 
 N = 2*N_1+1; % Hilbert space dimension
 % return
 K_class = 10% Classical Kicking
@@ -65,7 +65,7 @@ U=UCheck(N,N_1,K_class,T,gamma,str_ext);% Check if matrix exists, if it does loa
 Es=diag(Es);
 [psi_2,n_efn]=Psi_lifetime(psiS,Es,eps,set_stability);
 n_efn
-return
+% return
 ER=imag(log(diag(En)))/pi;
 EI=real(log(diag(En)))/(imag(gamma)*N);
 

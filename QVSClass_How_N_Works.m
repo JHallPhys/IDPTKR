@@ -1,7 +1,7 @@
 clear all 
 close all
 
-n_efn=431;
+n_efn=101;
 %==========================================================================
 %  Get the single state density
 %==========================================================================
@@ -43,17 +43,9 @@ if itt_efn==1
     Norm_single_state(Norm_single_state>1)=1;
     CD_single=imgaussfilt(Norm_single_state,sigma);
     
-else
-
-    Norm_single_state=Norm_hm_av;
-    Norm_single_state(Norm_single_state<=Norm_sort(itt_efn*NC))=0;
-    Norm_single_state(Norm_single_state>Norm_sort((itt_efn-1)*NC))=0;
-    Norm_single_state(Norm_single_state>1)=1;
-    CD_single=imgaussfilt(Norm_single_state,sigma);
-
 end
 
-fname_efn=strcat('Husimi_Entropy_k10_g0p001_N1001_single_efn',num2str(itt_efn),'_special');
+fname_efn=strcat('Husimi_Entropy_k10_g0p001_N1001_single_efn',num2str(1),'_special');
 parent_d = cd;    
 cd './Husimi_dat' % Directory where matrix is stored
 Hus_Entropy = matfile(fname_efn);
@@ -65,7 +57,7 @@ cd(parent_d)
 %==========================================================================
 %  Load the quantum data
 %==========================================================================
-N=21;
+N=itt_efn+1;
 Hus_Entropy_class=CD_single;
 Hus_Entropy_quant=Hus_Entropy;
 %==========================================================================

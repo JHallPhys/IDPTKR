@@ -1,79 +1,42 @@
 clear all 
 close all
 
-n_efn=431;
-%==========================================================================
-%  Get the single state density
-%==========================================================================
-
-% User parameters
-NC=1001;
-k=10;
-gamma=0.001;
-t_final=43;
-hbar_half_sqrt=sqrt(1/(4*pi*NC));
-sigma=NC*hbar_half_sqrt;
-norm_index='FWD'
-% norm_index='BWD';
-
-% Initialisation
-q = linspace(0,1,NC); 
-p = linspace(-0.5,0.5,NC); 
-[qmesh,pmesh]=meshgrid(q,p); 
-
-% Construct Norm map
-[Norm_hm,Norm_hm_av] = nmap(t_final,qmesh,pmesh,NC,k,gamma,'BWD');
-
-Norm_sort=Norm_hm_av(:);
-Norm_sort=sort(Norm_sort,'descend');
-
-CD=zeros(NC,NC);
-
-
-
+n_efn=431
+dim=2
+ystr=strcat('D_',num2str(dim))
 for itt_efn=1:n_efn
 itt_efn
 tic 
-
-
-if itt_efn==1
-
-    Norm_single_state=Norm_hm_av;
-    Norm_single_state(Norm_single_state<=Norm_sort(itt_efn*NC))=0;
-    Norm_single_state(Norm_single_state>1)=1;
-    CD_single=imgaussfilt(Norm_single_state,sigma);
-    
-else
-
-    Norm_single_state=Norm_hm_av;
-    Norm_single_state(Norm_single_state<=Norm_sort(itt_efn*NC))=0;
-    Norm_single_state(Norm_single_state>Norm_sort((itt_efn-1)*NC))=0;
-    Norm_single_state(Norm_single_state>1)=1;
-    CD_single=imgaussfilt(Norm_single_state,sigma);
-
-end
-
 fname_efn=strcat('Husimi_Entropy_k10_g0p001_N1001_single_efn',num2str(itt_efn),'_special');
+
+%==========================================================================
+%  Load the quantum data
+%==========================================================================
+N=20;
 parent_d = cd;    
 cd './Husimi_dat' % Directory where matrix is stored
 Hus_Entropy = matfile(fname_efn);
 Hus_Entropy=Hus_Entropy.Hus_Entropy; % I think this step may be redundent
 cd(parent_d)
-
-
-% CD_single=CD_single+min(min(Hus_Entropy));
-%==========================================================================
-%  Load the quantum data
-%==========================================================================
-N=21;
-Hus_Entropy_class=CD_single;
-Hus_Entropy_quant=Hus_Entropy;
+% figure
+% imagesc(Hus_Entropy)
+% colorbar
+% colormap(viridis)
+% set(gca,'YDir','normal')
+% xlabel('q')
+% ylabel('p')
+% % caxis([0 1])
+% c = colorbar('eastoutside');
+% Hus_Entropy=Hus_Entropy;
+% return
+% sum(sum(Hus_Entropy))
+% return
 %==========================================================================
 %  Get the partition of the phase space 
 %==========================================================================
 % 
 % You can hardcode Lq,Lp directly into meshgrid to cut all this to 2 lines
-grid_size=size(Hus_Entropy_class);
+grid_size=size(Hus_Entropy);
 grid_size=grid_size(1);
 % Hus_Entropy=Hus_Entropy./grid_size(1);
 Lq=1:grid_size; % Indices of the q(j) in [0,1)
@@ -93,8 +56,7 @@ NLen=length(N_i);
 % N_i(1)=N_i(1)+1
 % return
 
-SE_class=zeros(NLen,1); % Entropy Array
-SE_quant=zeros(NLen,1); % Entropy Array
+SE=zeros(NLen,1); % Entropy Array
 Nmax=NLen-1;
 % Nmax=10
 % for itt_box=1:NLen
@@ -126,8 +88,7 @@ for itt_box=1:Nmax
 
     if abs(grid_size-bq(end))<eps_grid % Pass
     
-        SE_class=box_measure(SE_class,itt_box,Partition,bp,bq,Bpmesh,Bqmesh,Lpmesh,Lqmesh,Hus_Entropy_class,dgrid);
-        SE_quant=box_measure(SE_quant,itt_box,Partition,bp,bq,Bpmesh,Bqmesh,Lpmesh,Lqmesh,Hus_Entropy_quant,dgrid);
+        SE=box_measure_higher(SE,itt_box,Partition,bp,bq,Bpmesh,Bqmesh,Lpmesh,Lqmesh,Hus_Entropy,dgrid,dim);
 
     end
     
@@ -142,12 +103,11 @@ for itt_box=1:Nmax
         bp=bq; % Same for this one 
         [Bqmesh,Bpmesh]=meshgrid(bq,bp); % Make new meshgrid
 %         return
-        SE_class=box_measure(SE_class,itt_box,Partition,bp,bq,Bpmesh,Bqmesh,Lpmesh,Lqmesh,Hus_Entropy_class,dgrid);
-        SE_quant=box_measure(SE_quant,itt_box,Partition,bp,bq,Bpmesh,Bqmesh,Lpmesh,Lqmesh,Hus_Entropy_quant,dgrid);
+        SE=box_measure_higher(SE,itt_box,Partition,bp,bq,Bpmesh,Bqmesh,Lpmesh,Lqmesh,Hus_Entropy,dgrid,dim);
 %     return
     end
     
-    SE_class(itt_box,1);
+    SE(itt_box,1);
 % return
 
 
@@ -160,38 +120,42 @@ end
 % ylabel('S_1(\epsilon)')
 
 
-
-DC_class = polyfit(log(1./N_i(1:Nmax)), SE_class(1:Nmax), 1);
-IDClass(itt_efn)=DC_class(1);
-
-
-DC_quant = polyfit(log(1./N_i(1:Nmax)), SE_quant(1:Nmax), 1);
-IDQuant(itt_efn)=DC_quant(1);
+DC = polyfit(log(1./N_i(1:Nmax)), SE(1:Nmax), 1);
+D(itt_efn)=DC(1);
 
 toc
 
 figure(1)
 clf
-hold on
-plot(1:1:itt_efn,IDClass,'r.','markersize',10)
-plot(1:1:itt_efn,IDQuant,'b.','markersize',10)
+plot(1:1:itt_efn,D,'k.-','markersize',5)
 xlabel('\gamma')
-ylabel('D_1(\epsilon)')
+ylabel(ystr)
 axis([1 n_efn 1.5 2])
 
 figure(2)
 clf
-hold on
-plot(1:1:itt_efn,IDClass,'r.-','markersize',5)
-plot(1:1:itt_efn,IDQuant,'b.-','markersize',5)
+plot(1:1:itt_efn,D,'k.','markersize',10)
 xlabel('\gamma')
-ylabel('D_1(\epsilon)')
+ylabel(ystr)
 axis([1 n_efn 1.5 2])
 
 end
 
 
+figure
+clf
+plot(1:1:itt_efn,D,'k.-','markersize',10)
+xlabel('\gamma')
+ylabel(ystr)
+axis([1 itt_efn 1.5 2])
 
+
+figure
+clf
+plot(1:1:itt_efn,D,'k.','markersize',10)
+xlabel('n_{\gamma}')
+ylabel(ystr)
+axis([1 itt_efn 1.5 2])
 
 
 

@@ -1,8 +1,8 @@
 clear all 
 close all
 
-n_efn=400;
-%==========================================================================
+n_efn=431;
+%========================================================================
 %  Get the single state density
 %==========================================================================
 
@@ -10,7 +10,7 @@ n_efn=400;
 NC=1001;
 k=10;
 gamma=0.001;
-t_final=60;
+t_final=43;
 hbar_half_sqrt=sqrt(1/(4*pi*NC));
 sigma=NC*hbar_half_sqrt;
 norm_index='FWD'
@@ -54,7 +54,7 @@ else
 
 end
 
-fname_efn=strcat('Husimi_Entropy_k10_g0p003_N1001_single_efn',num2str(itt_efn),'_special');
+fname_efn=strcat('Husimi_Entropy_k10_g0p001_N1001_single_efn',num2str(itt_efn),'_special');
 parent_d = cd;    
 cd './Husimi_dat' % Directory where matrix is stored
 Hus_Entropy = matfile(fname_efn);
